@@ -149,9 +149,14 @@ $(document).ready(function () {
                     case 'image/jpeg':
                         resolve("RGB");
                         break;
-                    case 'image/png':
-                        resolve("RGBA");
-                        break;
+                   case 'image/png':
+                    const colorType = header.getUint8(25); // 26-й байт определяет цветовой тип
+                    if (colorType === 6) {
+                        resolve("RGBA"); // PNG с альфа-каналом
+                    } else {
+                        resolve("RGB"); // PNG без альфа-канала
+                    }
+                    break;
                     case 'image/gif':
                         resolve("Indexed");
                         break;
@@ -187,18 +192,20 @@ $(document).ready(function () {
         });
     }
 
-    function getCompressionType(file) {
-        switch (file.type) {
-            case 'image/jpeg':
-                return "Not available";
-            case 'image/gif':
-                return "Lossless";
-            case 'image/bmp':
-                return "None";
-            case 'image/tiff':
-                return "Varies";
-            default:
-                return "Unknown";
-        }
+function getCompressionType(fileType) {
+    switch (fileType) {
+        case 'image/jpeg':
+            return 'JPEG Compression';
+        case 'image/png':
+            return 'Deflate/Inflate Compression';
+        case 'image/gif':
+            return 'LZW Compression';
+        case 'image/tiff':
+            return 'Varies (LZW, JPEG, etc.)';
+        case 'image/bmp':
+            return 'None';
+        default:
+            return 'Unknown';
     }
+}
 });
