@@ -8,7 +8,7 @@ $(document).ready(function () {
 
     document.getElementById('uploadButton').addEventListener('click', function () {
         const fileInput = document.getElementById('fileInput');
-        const files = Array.from(fileInput.files); // Список выбранных файлов
+        const files = Array.from(fileInput.files);
 
         if (files.length === 0) {
             alert("Файлы не выбраны.");
@@ -34,7 +34,7 @@ $(document).ready(function () {
         for (let i = 0; i < files.length; i++) {
             let file = files[i];
             if (!isSupportedFormat(file.type)) {
-                alert(`Формат ${file.type} не поддерживается.`);
+                //alert(`Формат ${file.type} не поддерживается.`);
                 continue;
             }
 
@@ -51,7 +51,7 @@ $(document).ready(function () {
                     let size = `${img.width}x${img.height}`;
                     let depth = await getBitDepth(file);
                     let colorMode = await getColorMode(file);
-                    let compression = getCompressionType(file);
+                    let compression = getCompressionType(file.type);
 
                     table.row.add([
                         format,
@@ -114,22 +114,22 @@ $(document).ready(function () {
                 const header = new DataView(data);
                 switch (file.type) {
                     case 'image/jpeg':
-                        resolve(24);
+                        resolve(24); // Обычно JPEG имеет 24 бита на пиксель
                         break;
                     case 'image/png':
                         const bitDepthPNG = header.getUint8(24);
-                        resolve(bitDepthPNG === 8 ? 32 : 24);
+                        resolve(bitDepthPNG === 8 ? 32 : 24); // PNG может иметь 24 или 32 бита
                         break;
                     case 'image/gif':
-                        resolve(8);
+                        resolve(8); // GIF обычно 8 бит
                         break;
                     case 'image/bmp':
                         const bitsPerPixel = header.getUint16(28, true);
-                        resolve(bitsPerPixel);
+                        resolve(bitsPerPixel); // Читаем биты на пиксель из BMP
                         break;
                     case 'image/tiff':
                         const tiffBitsPerSample = header.getUint16(14, true);
-                        resolve(tiffBitsPerSample);
+                        resolve(tiffBitsPerSample); // TIFF
                         break;
                     default:
                         resolve("Unknown");
@@ -147,27 +147,23 @@ $(document).ready(function () {
                 const header = new DataView(data);
                 switch (file.type) {
                     case 'image/jpeg':
-                        resolve("RGB");
+                        resolve("RGB"); // JPEG - RGB
                         break;
-                   case 'image/png':
-                    const colorType = header.getUint8(25); // 26-й байт определяет цветовой тип
-                    if (colorType === 6) {
-                        resolve("RGBA"); // PNG с альфа-каналом
-                    } else {
-                        resolve("RGB"); // PNG без альфа-канала
-                    }
-                    break;
+                    case 'image/png':
+                        const colorType = header.getUint8(25); // 26-й байт определяет цветовой тип
+                        resolve(colorType === 6 ? "RGBA" : "RGB"); // Проверка на альфа-канал
+                        break;
                     case 'image/gif':
-                        resolve("Indexed");
+                        resolve("Indexed"); // GIF - индексированный
                         break;
                     case 'image/bmp':
                         const bitsPerPixel = header.getUint16(28, true);
                         if (bitsPerPixel === 8) {
-                            resolve("L");
+                            resolve("L"); // Одноканальный
                         } else if (bitsPerPixel === 24) {
-                            resolve("RGB");
+                            resolve("RGB"); // RGB
                         } else if (bitsPerPixel === 32) {
-                            resolve("RGBA");
+                            resolve("RGBA"); // RGBA
                         } else {
                             resolve("Unknown");
                         }
@@ -192,20 +188,20 @@ $(document).ready(function () {
         });
     }
 
-function getCompressionType(fileType) {
-    switch (fileType) {
-        case 'image/jpeg':
-            return 'JPEG Compression';
-        case 'image/png':
-            return 'Deflate/Inflate Compression';
-        case 'image/gif':
-            return 'LZW Compression';
-        case 'image/tiff':
-            return 'Varies (LZW, JPEG, etc.)';
-        case 'image/bmp':
-            return 'None';
-        default:
-            return 'Unknown';
+    function getCompressionType(fileType) {
+        switch (fileType) {
+            case 'image/jpeg':
+                return 'JPEG Compression';
+            case 'image/png':
+                return 'Deflate Compression';
+            case 'image/gif':
+                return 'LZW Compression';
+            case 'image/tiff':
+                return 'Varies (LZW, JPEG, etc.)';
+            case 'image/bmp':
+                return 'None';
+            default:
+                return 'Unknown';
+        }
     }
-}
 });
