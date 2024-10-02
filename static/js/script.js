@@ -188,20 +188,31 @@ $(document).ready(function () {
         });
     }
 
-    function getCompressionType(fileType) {
-        switch (fileType) {
-            case 'image/jpeg':
-                return 'JPEG Compression';
-            case 'image/png':
-                return 'Deflate Compression';
-            case 'image/gif':
-                return 'LZW Compression';
-            case 'image/tiff':
-                return 'Varies (LZW, JPEG, etc.)';
-            case 'image/bmp':
-                return 'None';
-            default:
-                return 'Unknown';
-        }
+    function getCompressionType(fileType, header) {
+    switch (fileType) {
+        case 'image/jpeg':
+            return 'JPEG Compression';
+        case 'image/png':
+            return 'Deflate Compression';
+        case 'image/gif':
+            return 'LZW Compression';
+        case 'image/tiff':
+            const compressionMethod = header.getUint16(20, true); // Считываем 21-й байт
+            switch (compressionMethod) {
+                case 1:
+                    return 'None';
+                case 5:
+                    return 'LZW Compression';
+                case 7:
+                    return 'JPEG Compression';
+                // Добавьте другие методы сжатия по мере необходимости
+                default:
+                    return 'Varies';
+            }
+        case 'image/bmp':
+            return 'None';
+        default:
+            return 'Unknown';
     }
+}
 });
