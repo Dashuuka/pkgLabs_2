@@ -1,10 +1,22 @@
 $(document).ready(function () {
+    // Добавляем кастомный тип сортировки для размеров изображений
+    $.fn.dataTable.ext.type.order['image-size-pre'] = function (data) {
+        const dimensions = data.split('x').map(Number);
+        return dimensions[0] * dimensions[1];
+    };
+
     let table = $('#imageTable').DataTable({
         "paging": true,
         "searching": true,
         "ordering": true,
-        "order": [[1, "asc"]]
+        "order": [[1, "asc"]],
+        "columnDefs": [
+            { "type": "image-size", "targets": 2 } // Устанавливаем тип данных для колонки с размерами
+        ]
     });
+
+    // Устанавливаем тип сортировки для столбца размера
+    table.column(2).data().sort($.fn.dataTable.ext.type.order['image-size-pre']);
 
     document.getElementById('uploadButton').addEventListener('click', function () {
         const fileInput = document.getElementById('fileInput');
@@ -34,7 +46,7 @@ $(document).ready(function () {
         for (let i = 0; i < files.length; i++) {
             let file = files[i];
             if (!isSupportedFormat(file.type)) {
-                //alert(`Формат ${file.type} не поддерживается.`);
+                //alert(Формат ${file.type} не поддерживается.);
                 continue;
             }
 
@@ -53,13 +65,14 @@ $(document).ready(function () {
                     let colorMode = await getColorMode(file);
                     let compression = getCompressionType(file.type);
 
+
                     table.row.add([
                         format,
                         fileName,
                         size,
                         depth,
                         colorMode,
-                        compression
+                        compression,
                     ]).draw(false);
                 };
             };
