@@ -4,7 +4,6 @@ $(document).ready(function () {
         const dimensions = data.split('x').map(Number);
         return dimensions[0] * dimensions[1];
     };
-
     let table = $('#imageTable').DataTable({
         "paging": true,
         "searching": true,
