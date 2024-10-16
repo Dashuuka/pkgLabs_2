@@ -205,7 +205,7 @@ $(document).ready(function () {
         case 'image/jpeg':
             return 'JPEG Compression';
         case 'image/png':
-            return 'Deflate Compression';
+            return 'None';
         case 'image/gif':
             return 'LZW Compression';
         case 'image/tiff':
